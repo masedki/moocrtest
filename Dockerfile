@@ -19,6 +19,7 @@ RUN conda install -c r --quiet --yes \
     && conda clean -tipsy \
     && mkdir /home/$NB_USER/work/notebooks
 
+RUN R --quiet -e "install.packages('gplots')"
 
 # Add my own R file
 COPY smp1.csv /home/$NB_USER/work
