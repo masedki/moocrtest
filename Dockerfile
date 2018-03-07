@@ -1,33 +1,27 @@
-FROM rocker/tidyverse:3.4.2
+# Copyright (c) Jupyter Development Team.
+# Distributed under the terms of the Modified BSD License.
+FROM jupyter/r-notebook
 
-RUN apt-get update && \
-    apt-get -y install python3-pip && \
-    pip3 install --no-cache-dir notebook==5.2 && \
-    apt-get purge && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
-RUN mkdir ${HOME}/mooc
-COPY smp1.csv ${HOME}/mooc/
-COPY outils_hdrs.csv ${HOME}/mooc/
-
-ENV NB_USER rstudio
-ENV NB_UID 1000
-ENV HOME /home/rstudio
-WORKDIR ${HOME}
-
-
-USER ${NB_USER}
-
-# Set up R Kernel for Jupyter
-RUN R --quiet -e "install.packages(c('gplots','repr', 'IRdisplay', 'evaluate', 'crayon', 'pbdZMQ', 'devtools', 'uuid', 'digest'))"
-RUN R --quiet -e "devtools::install_github('IRkernel/IRkernel')"
-RUN R --quiet -e "IRkernel::installspec()"
-
-# Make sure the contents of our repo are in ${HOME}
-COPY . ${HOME}
+# Install system libraries first as root
 USER root
-RUN chown -R ${NB_UID}:${NB_UID} ${HOME}
-USER ${NB_USER}
+# R dependencies that conda can't provide (X, fonts, compilers)
+RUN apt-get update && \
+    apt-get install -y libxrender1 && \
+    apt-get clean
 
-# Run install.r if it exists
-RUN if [ -f install.r ]; then R --quiet -f install.r; fi
+# Switch back to jovyan for all conda and other installs
+USER jovyan
+
+# Add Anaconda's "R Essentials"
+# (https://www.continuum.io/blog/developer/jupyter-and-conda-r)
+RUN conda install -c r --quiet --yes \
+    'r-essentials' \
+    && conda clean -tipsy \
+    && mkdir /home/$NB_USER/work/notebooks
+
+
+# Add my own R file
+COPY smp1.csv /home/$NB_USER/work
+COPY outils_hdrs.csv /home/$NB_USER/work
+COPY chap02.ipynb  /home/$NB_USER/work/notebooks
+
