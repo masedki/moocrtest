@@ -9,8 +9,6 @@ RUN apt-get update && \
     apt-get install -y libxrender1 && \
     apt-get clean
 
-# Switch back to jovyan for all conda and other installs
-USER jovyan
 
 # Add Anaconda's "R Essentials"
 # (https://www.continuum.io/blog/developer/jupyter-and-conda-r)
