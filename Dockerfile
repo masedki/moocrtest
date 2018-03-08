@@ -4,10 +4,15 @@ FROM jupyter/r-notebook
 
 # Install system libraries first as root
 USER root
+
 # R dependencies that conda can't provide (X, fonts, compilers)
 RUN apt-get update && \
     apt-get install -y libxrender1 && \
     apt-get clean
+
+
+# Switch back to jovyan for all conda and other installs
+USER jovyan
 
 
 # Add Anaconda's "R Essentials"
