@@ -12,7 +12,7 @@ RUN apt-get update && \
 
 
 # Switch back to jovyan for all conda and other installs
-USER jovyan
+# USER jovyan
 
 
 # Add Anaconda's "R Essentials"
